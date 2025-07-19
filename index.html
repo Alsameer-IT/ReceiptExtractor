@@ -180,6 +180,10 @@
                     <div class="detail-value" id="nationalId"></div>
                 </div>
                 <div class="detail-row">
+                    <div class="detail-key">Passport:</div>
+                    <div class="detail-value" id="passport"></div>
+                </div>
+                <div class="detail-row">
                     <div class="detail-key">Nationality:</div>
                     <div class="detail-value" id="nationality"></div>
                 </div>
@@ -367,6 +371,7 @@
                 senderAddress = senderAddressRaw.replace(/\n/g, ', ').trim();
             }
             const nationalIdMatch = senderSection.match(/National ID: ([0-9-]+)/i);
+            const passportMatch = senderSection.match(/Passport: ([A-Za-z0-9]+)/i);
             const nationalityMatch = senderSection.match(/Nationality: ([^\n]+)/i);
             const professionMatch = senderSection.match(/Profession: ([^\n]+)/i);
             const senderMobileMatch = senderSection.match(/Mobile No: (\d+)/i) || 
@@ -565,40 +570,42 @@
             const finalIfscCode = beneficiaryData.ifscCode && beneficiaryData.ifscCode.length > 1 && !beneficiaryData.ifscCode.match(/mobile/i) ? beneficiaryData.ifscCode : 'N/A';
             const finalMobileNo = beneficiaryData.mobileNo && /^\d+$/.test(beneficiaryData.mobileNo) ? beneficiaryData.mobileNo : 'N/A';
             
-            const extractedData = {
-                txnNo: txnNoMatch ? txnNoMatch[1].trim() : 'N/A',
-                topLeftDate: topLeftDateMatch ? topLeftDateMatch[0].trim() : 'N/A',
-                paymentChannel: paymentChannelMatch ? paymentChannelMatch[1].trim() : 'N/A',
-                pin: pinMatch ? pinMatch[1].trim() : 'N/A',
-                date: dateMatch ? dateMatch[1].trim() : 'N/A',
-                
-                customerId: customerIdMatch ? customerIdMatch[1].trim() : 'N/A',
-                senderName: senderNameMatch ? senderNameMatch[1].trim() : 'N/A',
-                senderAddress: senderAddress,
-                senderAddressRaw: senderAddressRaw,
-                nationalId: nationalIdMatch ? nationalIdMatch[1].trim() : 'N/A',
-                nationality: nationalityMatch ? nationalityMatch[1].trim() : 'N/A',
-                profession: professionMatch ? professionMatch[1].trim() : 'N/A',
-                senderMobile: senderMobileMatch ? senderMobileMatch[1].trim() : 'N/A',
-                
-                beneficiaryName: beneficiaryData.name || 'N/A',
-                bankName: beneficiaryData.bankName || 'N/A',
-                accountNo: beneficiaryData.accountNo || 'N/A',
-                ifscCode: finalIfscCode,
-                routingNumber: beneficiaryData.routingNumber || 'N/A',
-                branchName: beneficiaryData.branchName || 'N/A',
-                beneficiaryMobile: finalMobileNo,
-                
-                payoutCountry: payoutCountryMatch ? payoutCountryMatch[1].trim() : 'N/A',
-                source: sourceMatch ? sourceMatch[1].trim() : 'N/A',
-                purpose: purposeMatch ? purposeMatch[1].trim() : 'N/A',
-                payoutAmount: payoutAmountMatch ? `${payoutAmountMatch[1].trim()} ${payoutAmountMatch[2]}` : 'N/A',
-                exchangeRate: exchangeRateMatch ? `${exchangeRateMatch[1].trim()} ${exchangeRateMatch[2]}` : 'N/A',
-                payInAmount: payInAmountMatch ? `${payInAmountMatch[1].trim()} ${payInAmountMatch[2]}` : 'N/A',
-                serviceCharge: serviceChargeMatch ? `${serviceChargeMatch[1].trim()} ${serviceChargeMatch[2]}` : 'N/A',
-                totalAmount: totalAmountMatch ? `${totalAmountMatch[1].trim()} ${totalAmountMatch[2]}` : 'N/A'
-            };
-            
+           const extractedData = {
+    txnNo: txnNoMatch ? txnNoMatch[1].trim() : 'N/A',
+    topLeftDate: topLeftDateMatch ? topLeftDateMatch[0].trim() : 'N/A',
+    paymentChannel: paymentChannelMatch ? paymentChannelMatch[1].trim() : 'N/A',
+    pin: pinMatch ? pinMatch[1].trim() : 'N/A',
+    date: dateMatch ? dateMatch[1].trim() : 'N/A',
+    
+    customerId: customerIdMatch ? customerIdMatch[1].trim() : 'N/A',
+    senderName: senderNameMatch ? senderNameMatch[1].trim() : 'N/A',
+    senderAddress: senderAddress,
+    senderAddressRaw: senderAddressRaw,
+    nationalId: nationalIdMatch ? nationalIdMatch[1].trim() : 'N/A',
+    passport: passportMatch ? passportMatch[1].trim() : 'N/A',
+    nationality: nationalityMatch ? nationalityMatch[1].trim() : 'N/A',
+    profession: professionMatch ? professionMatch[1].trim() : 'N/A',
+    senderMobile: senderMobileMatch ? senderMobileMatch[1].trim() : 'N/A',
+
+    beneficiaryName: beneficiaryData.name || 'N/A',
+    bankName: beneficiaryData.bankName || 'N/A',
+    accountNo: beneficiaryData.accountNo || 'N/A',
+    ifscCode: finalIfscCode,
+    routingNumber: beneficiaryData.routingNumber || 'N/A',
+    branchName: beneficiaryData.branchName || 'N/A',
+    beneficiaryMobile: finalMobileNo,
+
+    payoutCountry: payoutCountryMatch ? payoutCountryMatch[1].trim() : 'N/A',
+    source: sourceMatch ? sourceMatch[1].trim() : 'N/A',
+    purpose: purposeMatch ? purposeMatch[1].trim() : 'N/A',
+    payoutAmount: payoutAmountMatch ? `${payoutAmountMatch[1].trim()} ${payoutAmountMatch[2]}` : 'N/A',
+    exchangeRate: exchangeRateMatch ? `${exchangeRateMatch[1].trim()} ${exchangeRateMatch[2]}` : 'N/A',
+    payInAmount: payInAmountMatch ? `${payInAmountMatch[1].trim()} ${payInAmountMatch[2]}` : 'N/A',
+    serviceCharge: serviceChargeMatch ? `${serviceChargeMatch[1].trim()} ${serviceChargeMatch[2]}` : 'N/A',
+    totalAmount: totalAmountMatch ? `${totalAmountMatch[1].trim()} ${totalAmountMatch[2]}` : 'N/A'
+};
+
+
             console.log('Extracted Data:', extractedData);
             return extractedData;
         }
@@ -616,6 +623,7 @@
             document.getElementById('senderName').textContent = data.senderName || 'N/A';
             document.getElementById('senderAddress').innerHTML = (data.senderAddressRaw || 'N/A').replace(/\n/g, '<br>');
             document.getElementById('nationalId').textContent = data.nationalId || 'N/A';
+            document.getElementById('passport').textContent = data.passport || 'N/A';
             document.getElementById('nationality').textContent = data.nationality || 'N/A';
             document.getElementById('profession').textContent = data.profession || 'N/A';
             document.getElementById('senderMobile').textContent = data.senderMobile || 'N/A';
@@ -662,6 +670,7 @@
                 paymentChannel: data.paymentChannel || 'N/A',
                 pin: data.pin || 'N/A',
                 nationalId: data.nationalId || 'N/A',
+                passport: data.passport || 'N/A',
                 profession: data.profession || 'N/A',
                 senderMobile: data.senderMobile || 'N/A',
                 senderAddress: data.senderAddress || 'N/A',
