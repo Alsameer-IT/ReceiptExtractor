@@ -625,7 +625,8 @@
                 senderMobile: data.senderMobile || 'N/A',
                 senderAddress: data.senderAddress || 'N/A',
                 purpose: data.purpose || 'N/A',
-                source: data.source || 'N/A'
+                source: data.source || 'N/A',
+                ifscCode: data.ifscCode || 'N/A' // Added ifscCode parameter
             }).toString();
             
             const receiptUrl = `receipt.html?${params}`;
