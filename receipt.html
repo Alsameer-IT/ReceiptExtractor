@@ -42,12 +42,11 @@
             background: #ffffff;
             border: 2px solid #000000;
             padding: 0.1rem 0.2rem;
-            width: 160px;
+            width: 210px;
             margin: 0.4rem 0;
             display: inline-block;
             white-space: nowrap;
         }
-
         .cust-id {
             font-size: 0.8rem;
             margin-bottom: 0.5rem;
@@ -179,7 +178,7 @@
                 </div>
                 <div class="detail-row">
                     <div class="detail-key">Nationality</div>
-                    <div class="detail-value" id="recipientCountry"></div>
+                    <div class="detail-value" id="nationality"></div>
                 </div>
                 <div class="detail-row">
                     <div class="detail-key">Phone/Mobile:</div>
@@ -258,7 +257,7 @@
         </div>
 
         <div class="footer-section">
-            <p>Thank you for using our service.</p>
+            
         </div>
         
         <button class="download-btn" id="downloadBtn">
@@ -376,11 +375,12 @@
             beneficiaryName: formatValue(params.get('beneficiaryName')),
             bankName: formatValue(params.get('bankName')),
             accountNo: formatValue(params.get('accountNo')),
-            beneficiaryAddress: formatValue(params.get('beneficiaryAddress') || countryDetails.code),
+            beneficiaryAddress: formatValue(params.get('beneficiaryAddress') || params.get('payoutCountry')),
             beneficiaryMobile: formatValue(params.get('beneficiaryMobile')),
             purpose: formatValue(params.get('purpose')),
             senderName: formatValue(params.get('senderName')),
             nationalId: formatValue(params.get('nationalId')),
+            passport: formatValue(params.get('passport')),
             occupation: formatValue(params.get('profession')),
             senderMobile: params.get('senderMobile') ? `+673 ${params.get('senderMobile')}` : 'N/A',
             senderAddress: expandBrunei(params.get('senderAddress')),
@@ -390,7 +390,8 @@
             receiptId: formatValue(referenceNumber),
             localTime: formatValue(params.get('date')),
             premium: params.get('amount') ? `${addCommas(params.get('amount'))} ${countryDetails.currency}` : 'N/A',
-            custId: formatValue(params.get('custId'))
+            custId: formatValue(params.get('custId')),
+            recipientCountry: formatValue(params.get('payoutCountry'))
         };
 
         // Update payment method
@@ -421,12 +422,14 @@
         }
 
         document.getElementById('senderName').textContent = data.senderName;
-        document.getElementById('passport').textContent = data.nationalId;
+        // Display nationalId if available, otherwise passport
+        document.getElementById('passport').textContent = data.nationalId !== 'N/A' ? data.nationalId : data.passport;
         document.getElementById('occupation').textContent = data.occupation;
+        document.getElementById('nationality').textContent = data.recipientCountry;
         document.getElementById('senderMobile').textContent = data.senderMobile;
         document.getElementById('senderAddress').textContent = data.senderAddress;
         document.getElementById('source').textContent = data.source;
-        document.getElementById('recipientCountry').textContent = countryDetails.code;
+        document.getElementById('recipientCountry').textContent = data.beneficiaryAddress;
         document.getElementById('beneficiaryName').textContent = data.beneficiaryName;
         document.getElementById('beneficiaryAddress').textContent = data.beneficiaryAddress;
 
