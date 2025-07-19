@@ -208,6 +208,10 @@
                     <div class="detail-key">Account No:</div>
                     <div class="detail-value" id="accountNo"></div>
                 </div>
+                <div class="detail-row" id="branchCodeSection" style="display: none;">
+                    <div class="detail-key">Branch Code:</div>
+                    <div class="detail-value" id="branchCode"></div>
+                </div>
                 <div class="detail-row">
                     <div class="detail-key">Address:</div>
                     <div class="detail-value" id="beneficiaryAddress"></div>
@@ -248,7 +252,7 @@
                     <div class="detail-value" id="exchangeRate"></div>
                 </div>
                 <div class="detail-row right-align">
-                    <div class="detail-key">Premium:</div>
+                    <div class="detail-key" id="premium">Premium:</div>
                     <div class="detail-value" id="premium"></div>
                 </div>
                 <div class="highlight-box">
@@ -369,6 +373,8 @@ const data = {
     beneficiaryName: formatValue(params.get('beneficiaryName')),
     bankName: formatValue(params.get('bankName')),
     accountNo: formatValue(params.get('accountNo')),
+    ifscCode: formatValue(params.get('ifscCode')),
+    branchCode: formatValue(params.get('ifscCode') || 'N/A'), // Updated to use full ifscCode
     beneficiaryAddress: formatValue(params.get('beneficiaryAddress') || params.get('payoutCountry')),
     beneficiaryMobile: formatValue(params.get('beneficiaryMobile')),
     purpose: formatValue(params.get('purpose')),
@@ -434,6 +440,7 @@ document.getElementById('recipientCountry').textContent = data.beneficiaryAddres
 document.getElementById('beneficiaryName').textContent = data.beneficiaryName;
 document.getElementById('bankName').textContent = data.bankName;
 document.getElementById('accountNo').textContent = data.accountNo;
+document.getElementById('branchCode').textContent = data.branchCode;
 document.getElementById('beneficiaryAddress').textContent = data.beneficiaryAddress;
 
 const beneficiaryMobileSection = document.getElementById('beneficiaryMobileSection');
@@ -461,6 +468,14 @@ if (data.accountNo === 'N/A' || !data.accountNo) {
     accountNoSection.style.display = 'none';
 } else {
     accountNoSection.style.display = 'flex';
+}
+
+// Toggle Branch Code section visibility
+const branchCodeSection = document.getElementById('branchCodeSection');
+if (data.ifscCode === 'N/A' || !data.ifscCode) {
+    branchCodeSection.style.display = 'none';
+} else {
+    branchCodeSection.style.display = 'flex';
 }
 
 // Download button functionality
