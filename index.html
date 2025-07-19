@@ -386,7 +386,7 @@
             let beneficiaryData = {
                 name: '',
                 bankName: '',
-                accountNo: '',
+                accountNo: 'N/A', // Default to N/A, only set if explicitly found
                 ifscCode: 'N/A',
                 routingNumber: 'N/A',
                 branchName: 'N/A',
@@ -395,7 +395,6 @@
             
             let fieldIndex = 0;
             let lastAccountNo = '';
-            let expectingValue = false;
             
             for (let i = 0; i < lines.length && fieldIndex < 5; i++) {
                 let line = lines[i].trim();
@@ -404,21 +403,7 @@
                 
                 console.log(`Processing Beneficiary Line ${i} (fieldIndex=${fieldIndex}): ${line}`);
                 
-                if (expectingValue) {
-                    if (fieldIndex === 0) {
-                        const nameMatch = line.match(/^:?\s*([^\n]+)/);
-                        if (nameMatch) {
-                            beneficiaryData.name = nameMatch[1].trim();
-                            fieldIndex++;
-                            expectingValue = false;
-                        }
-                    }
-                    continue;
-                }
-                
-                if (fieldIndex === 0 && line.match(/Name/i) && !line.match(/:/)) {
-                    expectingValue = true;
-                } else if (fieldIndex === 0 && line.match(/Name:/i)) {
+                if (fieldIndex === 0 && line.match(/Name:/i)) {
                     const nameMatch = line.match(/Name: ([^\n]+)/i);
                     if (nameMatch) {
                         beneficiaryData.name = nameMatch[1].trim();
@@ -430,9 +415,6 @@
                         beneficiaryData.bankName = bankMatch[1].trim();
                         fieldIndex++;
                     }
-                } else if (fieldIndex === 1 && !line.match(/(?:Bank|Bank Name):/i) && line.match(/[A-Z\s]+/)) {
-                    beneficiaryData.bankName = line.trim();
-                    fieldIndex++;
                 } else if (fieldIndex === 2 && line.match(/Account No:/i)) {
                     const accountMatch = line.match(/Account No: ([^\n]+)/i);
                     if (accountMatch) {
@@ -440,10 +422,6 @@
                         lastAccountNo = beneficiaryData.accountNo;
                         fieldIndex++;
                     }
-                } else if (fieldIndex === 2 && line.match(/\d+/)) {
-                    beneficiaryData.accountNo = line.trim();
-                    lastAccountNo = beneficiaryData.accountNo;
-                    fieldIndex++;
                 } else if (fieldIndex === 3 && line.match(/(?:IFSC(?:\/Bank)?\s*Code|Branch\s*Code|Bank\s*Code|IFSC):/i)) {
                     const ifscMatch = line.match(/(?:IFSC(?:\/Bank)?\s*Code|Branch\s*Code|Bank\s*Code|IFSC): ([^\n]+)/i);
                     if (ifscMatch) {
@@ -451,12 +429,9 @@
                         console.log(`Found potential IFSC code with label: ${potentialIfsc}`);
                         if (potentialIfsc !== lastAccountNo && potentialIfsc.length > 1 && !potentialIfsc.match(/mobile/i)) {
                             beneficiaryData.ifscCode = potentialIfsc;
-                            // Split IFSC/Bank Code into branch name and routing number
                             const ifscParts = potentialIfsc.split(/\s+/);
                             if (ifscParts.length >= 2) {
-                                // The last part is the routing number
                                 beneficiaryData.routingNumber = ifscParts[ifscParts.length - 1];
-                                // Everything before the last part is the branch name
                                 beneficiaryData.branchName = ifscParts.slice(0, -1).join(' ');
                             }
                         } else {
@@ -464,21 +439,6 @@
                         }
                         fieldIndex++;
                     }
-                } else if (fieldIndex === 3 && !line.match(/(?:IFSC(?:\/Bank)?\s*Code|Branch\s*Code|Bank\s*Code|IFSC):/i)) {
-                    const potentialIfsc = line.trim();
-                    console.log(`Found potential IFSC code without label: ${potentialIfsc}`);
-                    if (potentialIfsc !== lastAccountNo && potentialIfsc.length > 1 && !potentialIfsc.match(/mobile/i)) {
-                        beneficiaryData.ifscCode = potentialIfsc;
-                        // Split IFSC/Bank Code into branch name and routing number
-                        const ifscParts = potentialIfsc.split(/\s+/);
-                        if (ifscParts.length >= 2) {
-                            beneficiaryData.routingNumber = ifscParts[ifscParts.length - 1];
-                            beneficiaryData.branchName = ifscParts.slice(0, -1).join(' ');
-                        }
-                    } else {
-                        console.log('Potential IFSC code matches account number, is too short, or contains "mobile", keeping as N/A');
-                    }
-                    fieldIndex++;
                 } else if (fieldIndex === 4 && line.match(/Mobile No:/i)) {
                     const mobileMatch = line.match(/Mobile No: (\d+)/i);
                     if (mobileMatch) {
@@ -491,15 +451,6 @@
                         }
                         fieldIndex++;
                     }
-                } else if (fieldIndex === 4 && line.match(/\d+/)) {
-                    const potentialMobile = line.trim();
-                    console.log(`Found potential Mobile No without label: ${potentialMobile}`);
-                    if (potentialMobile !== lastAccountNo && /^\d+$/.test(potentialMobile)) {
-                        beneficiaryData.mobileNo = potentialMobile;
-                    } else {
-                        console.log('Potential Mobile No matches account number or is not numeric, keeping as N/A');
-                    }
-                    fieldIndex++;
                 }
             }
             
@@ -513,9 +464,9 @@
                 const bankMatch = text.match(/Beneficary Details[\s\S]*?(?:Bank|Bank Name): ([^\n]+)/i);
                 beneficiaryData.bankName = bankMatch ? bankMatch[1].trim() : '';
             }
-            if (!beneficiaryData.accountNo) {
+            if (beneficiaryData.accountNo === 'N/A') {
                 const accountMatch = text.match(/Beneficary Details[\s\S]*?Account No: ([^\n]+)/i);
-                beneficiaryData.accountNo = accountMatch ? accountMatch[1].trim() : '';
+                beneficiaryData.accountNo = accountMatch ? accountMatch[1].trim() : 'N/A';
             }
             if (beneficiaryData.ifscCode === 'N/A') {
                 const ifscMatch = text.match(/Beneficary Details[\s\S]*?(?:IFSC(?:\/Bank)?\s*Code|Branch\s*Code|Bank\s*Code|IFSC): ([^\n]+)/i);
@@ -589,7 +540,7 @@
 
     beneficiaryName: beneficiaryData.name || 'N/A',
     bankName: beneficiaryData.bankName || 'N/A',
-    accountNo: beneficiaryData.accountNo || 'N/A',
+    accountNo: beneficiaryData.accountNo,
     ifscCode: finalIfscCode,
     routingNumber: beneficiaryData.routingNumber || 'N/A',
     branchName: beneficiaryData.branchName || 'N/A',
@@ -604,7 +555,6 @@
     serviceCharge: serviceChargeMatch ? `${serviceChargeMatch[1].trim()} ${serviceChargeMatch[2]}` : 'N/A',
     totalAmount: totalAmountMatch ? `${totalAmountMatch[1].trim()} ${totalAmountMatch[2]}` : 'N/A'
 };
-
 
             console.log('Extracted Data:', extractedData);
             return extractedData;
